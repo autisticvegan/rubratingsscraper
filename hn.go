@@ -6,12 +6,14 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gocolly/colly/v2"
 )
 var citiesToAds = make(map[string]map[string]bool)
 func main() {
 
+	SLEEP_TIME := 5000
 	listOfCities := [...]string{
 		"https://birmingham.rubratings.com",
 		"https://mobile.rubratings.com",
@@ -178,7 +180,17 @@ func main() {
 	// On every a element which has href attribute call callback
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
 		link := e.Attr("href")
+
+		if strings.Contains(link, "sandiego") {
+			fmt.Println("doing sd")
+		}
+
 		cc := getCityNameOutOfLink(link, *regexCityPart)
+
+		if strings.Contains(cc, "sandiego") {
+			fmt.Println("doing sd")
+		}
+
 		// Print link
 		// Visit link found on page
 		doesMatch, _ := regexp.Match(regexP, []byte(link))
@@ -200,6 +212,8 @@ func main() {
 
 	for _,k := range listOfCities {
 		c.Visit(k)
+		//dont get 1015 rate limited
+		time.Sleep(time.Duration(SLEEP_TIME) * time.Millisecond)
 	}
 
 	//get total number of ads
